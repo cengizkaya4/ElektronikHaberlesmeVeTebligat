@@ -1,0 +1,377 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Elektronik Haberleşme ve Tebligat Mevzuatı Sınavı</title>
+<style>
+  :root{
+    --paper:#eef1f6;
+    --paper-2:#fbfcfe;
+    --ink:#16202e;
+    --ink-soft:#475263;
+    --line:#cfd6e3;
+    --brand:#1f3a8a;
+    --brand-deep:#15296b;
+    --amber:#b8852a;
+    --correct:#1c7a4d;
+    --correct-bg:#e3f1e8;
+    --wrong:#b23a3a;
+    --wrong-bg:#f6e4e2;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;}
+  body{
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    background:var(--paper);color:var(--ink);line-height:1.55;
+    -webkit-font-smoothing:antialiased;padding:24px 16px 64px;
+  }
+  .wrap{max-width:720px;margin:0 auto;}
+  header{
+    border:1px solid var(--line);background:var(--paper-2);
+    border-top:4px solid var(--brand);padding:26px 28px;margin-bottom:22px;
+  }
+  header .eyebrow{font-size:11px;letter-spacing:.22em;text-transform:uppercase;color:var(--brand);font-weight:700;}
+  header h1{font-family:Georgia,serif;font-size:24px;font-weight:700;margin:8px 0 6px;letter-spacing:-.01em;}
+  header p{font-size:13.5px;color:var(--ink-soft);}
+  header .meta{margin-top:14px;display:flex;flex-wrap:wrap;gap:6px 18px;font-size:12px;color:var(--ink-soft);border-top:1px dashed var(--line);padding-top:12px;}
+  header .meta b{color:var(--ink);font-weight:600;}
+
+  .bar-row{display:flex;align-items:center;gap:12px;margin-bottom:18px;}
+  .bar{flex:1;height:6px;background:#dde3ee;border:1px solid var(--line);overflow:hidden;}
+  .bar i{display:block;height:100%;background:var(--brand);width:0;transition:width .35s ease;}
+  .bar-label{font-size:12px;color:var(--ink-soft);white-space:nowrap;font-variant-numeric:tabular-nums;}
+
+  .card{background:var(--paper-2);border:1px solid var(--line);padding:26px 28px 24px;}
+  .q-head{display:flex;align-items:baseline;gap:14px;margin-bottom:4px;}
+  .q-num{font-family:Georgia,serif;font-size:30px;font-weight:700;color:var(--brand);line-height:1;font-variant-numeric:tabular-nums;}
+  .q-cat{font-size:10.5px;letter-spacing:.12em;text-transform:uppercase;color:#5a4a17;background:#f1e7cd;border:1px solid #e0cf9c;padding:3px 9px;font-weight:700;align-self:center;margin-left:auto;}
+  .q-text{font-size:17px;font-weight:600;margin:10px 0 18px;line-height:1.5;}
+
+  .opt{display:flex;gap:13px;align-items:flex-start;width:100%;text-align:left;border:1px solid var(--line);background:#fff;padding:13px 15px;margin-bottom:10px;cursor:pointer;font-size:15px;color:var(--ink);font-family:inherit;line-height:1.45;transition:border-color .15s,background .15s;}
+  .opt:hover:not(:disabled){border-color:var(--brand);background:#f7f9fd;}
+  .opt:disabled{cursor:default;}
+  .opt .key{flex:none;width:26px;height:26px;border:1px solid var(--line);border-radius:50%;display:grid;place-items:center;font-family:Georgia,serif;font-weight:700;font-size:14px;color:var(--ink-soft);background:var(--paper);transition:all .15s;}
+  .opt .txt{flex:1;padding-top:2px;}
+  .opt .mark{margin-left:8px;font-weight:700;font-size:13px;align-self:center;white-space:nowrap;}
+  .opt.correct{border-color:var(--correct);background:var(--correct-bg);}
+  .opt.correct .key{background:var(--correct);border-color:var(--correct);color:#fff;}
+  .opt.correct .mark{color:var(--correct);}
+  .opt.wrong{border-color:var(--wrong);background:var(--wrong-bg);}
+  .opt.wrong .key{background:var(--wrong);border-color:var(--wrong);color:#fff;}
+  .opt.wrong .mark{color:var(--wrong);}
+
+  .explain{border-left:3px solid var(--brand);background:#eef2fb;padding:13px 16px;margin-top:6px;font-size:14px;color:var(--ink-soft);display:none;}
+  .explain.show{display:block;}
+  .explain b{color:var(--brand-deep);}
+  .explain .verdict{font-weight:700;display:block;margin-bottom:3px;}
+  .explain .verdict.ok{color:var(--correct);}
+  .explain .verdict.no{color:var(--wrong);}
+
+  .nav{display:flex;justify-content:space-between;align-items:center;margin-top:20px;}
+  .btn{font-family:inherit;font-size:14px;font-weight:600;cursor:pointer;border:1px solid var(--brand);background:var(--brand);color:#fff;padding:11px 22px;transition:background .15s;}
+  .btn:hover{background:var(--brand-deep);}
+  .btn:disabled{opacity:.35;cursor:not-allowed;}
+  .btn.ghost{background:transparent;color:var(--brand);}
+  .btn.ghost:hover{background:#eef2fb;}
+  .runscore{font-size:13px;color:var(--ink-soft);font-variant-numeric:tabular-nums;}
+  .runscore b{color:var(--ink);}
+
+  .results{display:none;}
+  .results.show{display:block;}
+  .stamp{text-align:center;border:1px solid var(--line);background:var(--paper-2);border-top:4px solid var(--amber);padding:34px 28px;margin-bottom:20px;}
+  .stamp .pct{font-family:Georgia,serif;font-size:64px;font-weight:700;line-height:1;color:var(--brand);font-variant-numeric:tabular-nums;}
+  .stamp .ratio{font-size:15px;color:var(--ink-soft);margin-top:6px;}
+  .stamp .grade{display:inline-block;margin-top:16px;padding:6px 18px;font-weight:700;font-size:14px;letter-spacing:.05em;border:1px solid;}
+  .grade.pass{color:var(--correct);border-color:var(--correct);background:var(--correct-bg);}
+  .grade.fail{color:var(--wrong);border-color:var(--wrong);background:var(--wrong-bg);}
+  .review-h{font-family:Georgia,serif;font-size:18px;font-weight:700;margin:8px 0 12px;}
+  .rev-item{display:flex;gap:12px;align-items:flex-start;border:1px solid var(--line);background:var(--paper-2);padding:12px 15px;margin-bottom:8px;font-size:13.5px;}
+  .rev-dot{flex:none;width:22px;height:22px;border-radius:50%;display:grid;place-items:center;color:#fff;font-weight:700;font-size:13px;}
+  .rev-dot.ok{background:var(--correct);}
+  .rev-dot.no{background:var(--wrong);}
+  .rev-item .rq{font-weight:600;color:var(--ink);}
+  .rev-item .ra{color:var(--ink-soft);margin-top:3px;}
+  .rev-item .ra b{color:var(--correct);}
+
+  footer{margin-top:30px;text-align:center;font-size:11.5px;color:#8a93a5;line-height:1.5;}
+
+  @media (max-width:520px){
+    body{padding:16px 10px 48px;}
+    header,.card,.stamp{padding-left:18px;padding-right:18px;}
+    .q-cat{margin-left:0;margin-top:6px;}
+    .q-head{flex-wrap:wrap;}
+    .stamp .pct{font-size:52px;}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <div class="eyebrow">BTK / Adalet Bakanlığı &mdash; Elektronik Haberleşme Mevzuatı</div>
+    <h1>Elektronik Haberleşme ve Tebligat Mevzuatı Sınavı</h1>
+    <p>Elektronik Tebligat Yönetmeliği, Kayıtlı Elektronik Posta (KEP) Yönetmeliği ve 5809 sayılı Elektronik Haberleşme Kanunu esas alınmıştır.</p>
+    <div class="meta">
+      <span><b>30</b> soru</span>
+      <span>3 mevzuat alanı</span>
+      <span>Geçme barajı: <b>%70</b></span>
+      <span>Şıkka tıklayınca yanıt anında görünür</span>
+    </div>
+  </header>
+
+  <div id="quiz">
+    <div class="bar-row">
+      <div class="bar"><i id="bar"></i></div>
+      <div class="bar-label" id="barlabel">Soru 1 / 30</div>
+    </div>
+    <div class="card" id="card"></div>
+    <div class="nav">
+      <span class="runscore">Doğru: <b id="rs-c">0</b> &nbsp;·&nbsp; Yanlış: <b id="rs-w">0</b></span>
+      <button class="btn" id="next" disabled>Sonraki soru &rarr;</button>
+    </div>
+  </div>
+
+  <div class="results" id="results">
+    <div class="stamp">
+      <div class="eyebrow" style="color:var(--amber);">Sınav Sonucu</div>
+      <div class="pct" id="finalpct">0%</div>
+      <div class="ratio" id="finalratio">0 / 30 doğru</div>
+      <div class="grade" id="grade">—</div>
+    </div>
+    <div class="review-h">Soru bazında değerlendirme</div>
+    <div id="review"></div>
+    <div class="nav" style="justify-content:center;">
+      <button class="btn ghost" id="restart">↻ Sınavı yeniden başlat</button>
+    </div>
+  </div>
+
+  <footer>
+    Eğitim amaçlı hazırlanmıştır. Yanıtlar ilgili yönetmelik ve kanun metinlerine dayanır;<br>
+    güncel uygulamada her zaman Resmî Gazete'de yayımlanan yürürlükteki mevzuat esas alınır.
+  </footer>
+</div>
+
+<script>
+const QUESTIONS = [
+ // ---- ELEKTRONİK TEBLİGAT YÖNETMELİĞİ ----
+ {cat:"E-Tebligat", q:"Elektronik yolla yapılan tebligat hangi anda yapılmış sayılır?",
+  opts:["Muhatap iletiyi açıp okuduğu anda","Muhatabın adresine ulaştığı tarihte","Muhatabın adresine ulaştığı tarihi izleyen beşinci günün sonunda","Gönderildiği günü izleyen üçüncü günün sonunda"], a:2,
+  e:"Elektronik tebligat, <b>muhatabın elektronik adresine ulaştığı tarihi izleyen beşinci günün sonunda</b> yapılmış sayılır; muhatabın okuyup okumaması sonucu değiştirmez (m.9)."},
+
+ {cat:"E-Tebligat", q:"Ulusal Elektronik Tebligat Sistemi'ni (UETS) kuran, işleten ve güvenliğini sağlayan kuruluş hangisidir?",
+  opts:["Adalet Bakanlığı","BTK","PTT","TÜRKSAT"], a:2,
+  e:"UETS, Tebligat Kanunu ve bu Yönetmelik uyarınca elektronik tebligat işlemlerini yürütmek amacıyla <b>PTT tarafından</b> kurulan, işletilen ve güvenliği sağlanan sistemdir (m.3)."},
+
+ {cat:"E-Tebligat", q:"Elektronik Tebligat Yönetmeliği hangi bakanlıkça çıkarılmış ve neye dayanmaktadır?",
+  opts:["Ulaştırma Bakanlığı / 5809 sayılı Kanun","Adalet Bakanlığı / 7201 sayılı Tebligat Kanunu","Ticaret Bakanlığı / 6102 sayılı TTK","İçişleri Bakanlığı / 5018 sayılı Kanun"], a:1,
+  e:"Yönetmelik <b>Adalet Bakanlığınca</b> çıkarılmış olup 7201 sayılı Tebligat Kanunu'nun 7/a maddesine dayanır (RG 06.12.2018/30617, yürürlük 01.01.2019)."},
+
+ {cat:"E-Tebligat", q:"UETS, tebligatın muhatabın adresine ulaşıp ulaşmadığına dair delil kayıtlarını yetkili makam ve mercie en geç ne kadar sürede bildirir?",
+  opts:["Derhâl, en geç 24 saat içinde","48 saat içinde","Üç iş günü içinde","Beş gün içinde"], a:0,
+  e:"UETS delil kayıtlarını yetkili makam ve mercie <b>derhâl ve en geç yirmi dört saat içinde</b> bildirir; süresinde bildirilmediği için yeniden tebligat çıkarılırsa masrafı PTT karşılar."},
+
+ {cat:"E-Tebligat", q:"Zorunlu kapsamdaki tüzel kişiler, e-tebligat adresiyle ilgili işlemleri yapmak üzere kaç ana işlem yetkilisi belirleyebilir?",
+  opts:["En az 1, en fazla 5","En az 1, en fazla 10","Sadece 1","Sınırsız"], a:1,
+  e:"Zorunlu kapsamdaki tüzel kişiler <b>en az bir, en fazla on</b> ana işlem yetkilisi belirleyerek PTT'ye bildirir."},
+
+ {cat:"E-Tebligat", q:"2023 değişikliğine göre muhatap, elektronik tebligat adresine aşağıdakilerden hangisiyle erişemez?",
+  opts:["Güvenli elektronik imza ile","e-Devlet Kapısı üzerinden kimlik doğrulaması ile","PTT şifresi + SMS/e-posta ile gönderilen tek kullanımlık kod ile","Yalnızca kullanıcı adı ve sabit parola ile"], a:3,
+  e:"Erişim; güvenli e-imza, e-Devlet Kapısı veya PTT'nin verdiği şifre ile birlikte SMS/e-posta yoluyla gönderilen <b>tek kullanımlık doğrulama kodu</b> ile yapılır. Sabit parola tek başına yeterli değildir."},
+
+ {cat:"E-Tebligat", q:"Aşağıdakilerden hangisine tebligatın elektronik yolla yapılması zorunludur?",
+  opts:["Tüm gerçek kişilere","Baro levhasına yazılı avukatlara","Yalnızca yurt dışındaki vatandaşlara","Hiçbir gerçek kişiye"], a:1,
+  e:"5018 sayılı Kanun kapsamı kamu idareleri ve mahallî idareler yanında, <b>baro levhasına yazılı avukatlar</b>, noterler, sermaye şirketleri gibi kişilere e-tebligat zorunludur (m.5)."},
+
+ {cat:"E-Tebligat", q:"Elektronik yolla tebligatın zorunlu bir sebeple yapılamaması halinde ne yapılır?",
+  opts:["Tebligat hiç yapılmamış sayılır","Tebligat Kanunu'ndaki diğer (fiziki) usullerle yapılır","Otuz gün beklenir","Muhatap UETS'den çıkarılır"], a:1,
+  e:"Elektronik tebligat zorunlu bir sebeple yapılamazsa, <b>Tebligat Kanunu'nda belirtilen diğer usullerle</b> tebligat yapılır."},
+
+ {cat:"E-Tebligat", q:"Muhatabın bilgilendirilmesinde PTT'nin göndereceği mesajlar bakımından doğru olan hangisidir?",
+  opts:["Hem SMS hem e-posta ücretsizdir","SMS ücreti mukabilinde, e-posta ücretsizdir","Her ikisi de ücretlidir","Yalnızca SMS gönderilir"], a:1,
+  e:"Tebligat adrese ulaştığında PTT bilgilendirme mesajı iletir; bu mesaj <b>telefona ücreti mukabilinde, e-postaya ücretsiz</b> gönderilir."},
+
+ // ---- KAYITLI ELEKTRONİK POSTA (KEP) YÖNETMELİĞİ ----
+ {cat:"KEP", q:"KEP Yönetmeliği hangi kanuna dayanılarak hazırlanmıştır?",
+  opts:["7201 sayılı Tebligat Kanunu","5809 sayılı Elektronik Haberleşme Kanunu","6102 sayılı Türk Ticaret Kanunu (m.1525)","5070 sayılı Elektronik İmza Kanunu"], a:2,
+  e:"KEP Yönetmeliği, <b>6102 sayılı Türk Ticaret Kanunu'nun 1525. maddesine</b> dayanır; düzenleyici merci BTK'dır (m.3)."},
+
+ {cat:"KEP", q:"KEPHS'nin oluşturduğu kayıtlar ile KEP delillerinin hukukî niteliği nedir?",
+  opts:["Yazılı delil başlangıcıdır","Senet hükmündedir ve aksi ispat edilinceye kadar kesin delil sayılır","Takdiri delildir","Hukukî değeri yoktur"], a:1,
+  e:"KEP delilleri ve kayıtlar <b>senet hükmündedir ve aksi ispat edilinceye kadar kesin delil</b> sayılır (m.15). KEP'in temel değeri bu ispat gücüdür."},
+
+ {cat:"KEP", q:"Mücbir sebep dışında KEP hesabına erişilmemesi durumunda, o iş günü gelen ileti ne zaman ulaşmış ve okunmuş sayılır?",
+  opts:["Aynı gün","Ertesi iş günü","Beşinci günün sonunda","Yedi gün sonra"], a:1,
+  e:"Mücbir sebep hâlleri dışında hesaba erişilmezse, o işgünü gelen ileti <b>ertesi işgünü</b> hesap sahibine ulaşmış ve okunmuş sayılır (m.12). Bu, e-tebligattaki '5. gün' kuralından farklıdır."},
+
+ {cat:"KEP", q:"Kurum, KEPHS'den idarî ücret olarak bir önceki yıl net satışlarının ne kadarını alır?",
+  opts:["Binde dördü (%0,4)","On binde otuz beşi","Yüzde biri","Binde beşi"], a:0,
+  e:"Kurum, KEPHS'den bir önceki yıla ait net satışlarının <b>binde dördü (%0,4)</b> kadar idarî ücret alır; tamamı Nisan ayı sonuna kadar ödenir (m.20)."},
+
+ {cat:"KEP", q:"KEPHS, KEP sistemine ilişkin bilgi, belge ve elektronik verileri en az kaç yıl saklamakla yükümlüdür?",
+  opts:["5 yıl","10 yıl","15 yıl","20 yıl"], a:3,
+  e:"KEPHS, sistemin tüm süreçlerine ilişkin kayıtları gizlilik, bütünlük ve erişilebilirliğini koruyarak <b>en az yirmi yıl</b> saklar (m.16/ı)."},
+
+ {cat:"KEP", q:"KEPHS'nin KEP sistemine ilişkin ana ve yedek sistemleri nerede bulundurulur?",
+  opts:["AB sınırları içinde","OECD ülkelerinde","Türkiye Cumhuriyeti sınırları içinde","Serbesttir"], a:2,
+  e:"KEPHS, ana ve yedek sistemlerini <b>Türkiye Cumhuriyeti sınırları içerisinde</b> bulundurmakla yükümlüdür (m.16/l)."},
+
+ {cat:"KEP", q:"Aşağıdakilerden hangisi KEPHS olmak için başvuruda bulunabilir?",
+  opts:["ESHS olarak faaliyet gösterenler","5809 kapsamında işletmeci olarak faaliyet gösterenler","Koşulları sağlayan ve bu amaçla kurulan anonim şirket","Hiçbir tüzel kişi"], a:2,
+  e:"KEPHS, TTK kapsamında bu amaçla kurulan anonim şirkettir. <b>ESHS olarak veya 5809 kapsamında işletmeci olarak</b> faaliyet gösterenler KEPHS olmak için başvuramaz (m.6/4)."},
+
+ {cat:"KEP", q:"Kullanıma kapatılan bir KEP hesabı, tamamen kapatılmadan önce en az ne kadar süre erişime açık tutulur?",
+  opts:["Bir ay","Üç ay","Altı ay","Bir yıl"], a:1,
+  e:"Kullanıma kapatılan hesaptan gönderim/alım engellenir, ancak hesap <b>en az üç ay</b> erişime açık tutulur; sürenin sonunda tamamen kapatılır (m.13/4)."},
+
+ {cat:"KEP", q:"KEP sisteminin iki çalışma modeli hangileridir?",
+  opts:["Aç-oku ve sil-arşivle","Sakla-ilet ve sakla-bildir","Gönder-onayla ve al-onayla","Senkron ve asenkron"], a:1,
+  e:"İki model vardır: <b>sakla-ilet</b> (ileti doğrudan hesaba ulaştırılır) ve <b>sakla-bildir</b> (ileti KEPHS'de tutulur, hesaba sadece bağlantı adresi gönderilir) (m.4)."},
+
+ {cat:"KEP", q:"Kurum, KEPHS'lerin Yönetmeliğe uygun hizmet verip vermediğini hangi sıklıkla denetler?",
+  opts:["Yılda en az bir defa","İki yılda en az bir defa","Üç yılda bir","Yalnızca şikâyet üzerine"], a:1,
+  e:"Kurum, KEPHS'leri <b>iki yılda en az bir defa</b> re'sen veya şikâyet üzerine denetler/denetletir (m.26)."},
+
+ {cat:"KEP", q:"KEPHS faaliyetine son vereceği tarihten en az ne kadar önce durumu Kuruma yazılı olarak bildirmek zorundadır?",
+  opts:["Bir ay önce","İki ay önce","Üç ay önce","Altı ay önce"], a:2,
+  e:"KEPHS, faaliyetine son vereceği tarihten <b>en az üç ay önce</b> durumu Kuruma yazılı bildirir ve bildirimden sonra yeni hesap başvurusu kabul edemez (m.22)."},
+
+ {cat:"KEP", q:"KEP hesabı başvurusunda tüzel kişilerin kimlik tespiti nasıl yapılır?",
+  opts:["Pasaport ile","MERSİS vasıtasıyla MERSİS No ile","Sürücü belgesi ile","Vergi levhası fotokopisi ile"], a:1,
+  e:"Tüzel kişilerin sunduğu bilgi ve belgeler için kimlik tespiti <b>MERSİS vasıtasıyla MERSİS No</b> ile yapılır; gerçek kişiler ise kimlik kartı/pasaport/güvenli e-imza vb. ile (m.9)."},
+
+ {cat:"KEP", q:"KEP hesabı kullanılarak gerçekleştirilen tüm işlemlere ilişkin hukukî sonuçlar kimin üzerinde doğar?",
+  opts:["KEPHS üzerinde","İşlem yetkilisi üzerinde","Hesap sahibi üzerinde","Kurum üzerinde"], a:2,
+  e:"KEP hesabı kullanılarak gerçekleştirilen tüm işlemlere ilişkin hukukî sonuçlar <b>hesap sahibi</b> üzerinde doğar (m.15/2)."},
+
+ // ---- 5809 ELEKTRONİK HABERLEŞME KANUNU ----
+ {cat:"5809 EHK", q:"5809 sayılı Kanun kapsamında sektörü düzenleyen ve denetleyen kurum hangisidir?",
+  opts:["Rekabet Kurumu","Bilgi Teknolojileri ve İletişim Kurumu (BTK)","RTÜK","Ulaştırma Bakanlığı"], a:1,
+  e:"Düzenleyici ve denetleyici kurum <b>Bilgi Teknolojileri ve İletişim Kurumu (BTK)</b>'dır; yetkilendirme, frekans/numara tahsisi, tarife ve yaptırım yetkileri BTK'dadır."},
+
+ {cat:"5809 EHK", q:"Kanuna göre yetkilendirme hangi iki yolla yapılır?",
+  opts:["Ruhsat ve lisans","Bildirim ve kullanım hakkının verilmesi","İhale ve imtiyaz","Sözleşme ve tahsis"], a:1,
+  e:"Yetkilendirme <b>bildirim veya kullanım hakkının verilmesi</b> yoluyla yapılır (m.9). Kaynak tahsisi gerekmeyen faaliyetler bildirimle, gerekenler kullanım hakkıyla yetkilendirilir."},
+
+ {cat:"5809 EHK", q:"Aşağıdakilerden hangisi için işletmecinin 'kullanım hakkı' alması gerekir?",
+  opts:["Yalnızca bildirim yeterli olan hizmetler","Numara, frekans veya uydu pozisyonu gibi kaynak tahsisi gereken hizmetler","Hiçbir hizmet","Sadece yurt dışı hizmetler"], a:1,
+  e:"<b>Numara, frekans, uydu pozisyonu gibi kaynak tahsisine</b> ihtiyaç duyulan hizmetlerde işletmeci, Kurumdan kullanım hakkı alınması kaydıyla yetkilendirilir (m.9/3)."},
+
+ {cat:"5809 EHK", q:"Kullanım hakkı ücretlerinin asgari değerleri, Kurumun önerisi ve Bakanlığın teklifi üzerine kim tarafından belirlenir?",
+  opts:["Bakanlar Kurulu","Cumhurbaşkanı","TBMM","BTK Kurulu"], a:1,
+  e:"Kullanım hakkı ücretlerinin asgari değerleri, Kurumun önerisi ve Bakanlığın teklifi üzerine <b>Cumhurbaşkanı</b> tarafından belirlenir (m.11/5; 2018'de 'Bakanlar Kurulu' ibaresi değiştirilmiştir)."},
+
+ {cat:"5809 EHK", q:"İşletmecinin ödeyeceği idarî ücret hangi matrah üzerinden hesaplanır?",
+  opts:["Şirket sermayesi","Bir önceki yıl net satışları","Abone sayısı","Frekans bant genişliği"], a:1,
+  e:"İdarî ücret, Kurumun idarî giderlerine katkı amacıyla işletmecinin <b>bir önceki yıl net satışları</b> üzerinden alınır (m.11/2)."},
+
+ {cat:"5809 EHK", q:"Numara taşınabilirliği konusunda işletmecilerin yükümlülüğü nedir?",
+  opts:["İsteğe bağlı olarak sağlayabilirler","Kurum düzenlemeleri çerçevesinde sağlamakla yükümlüdürler","Yalnızca mobil hatlarda sağlarlar","Hiçbir yükümlülükleri yoktur"], a:1,
+  e:"İşletmeciler, Kurum düzenlemeleri çerçevesinde numara taşınabilirliğini <b>sağlamakla yükümlüdür</b> (m.32). Bu sayede abone numarasını koruyarak işletmeci değiştirebilir."},
+
+ {cat:"5809 EHK", q:"112 acil çağrı numarasına erişim konusunda aşağıdakilerden hangisi doğrudur?",
+  opts:["Ücreti aboneden tahsil edilir","Ücretsizdir ve işletmeci arayanın yerini tespit edip ilgili kuruluşa bildirir","Yalnızca sabit hatlardan aranabilir","Yalnızca kayıtlı abonelere açıktır"], a:1,
+  e:"Kullanıcılar 112'ye <b>ücretsiz erişir</b>; işletmeci erişimi ücretsiz sağlamak ve acil yardım talebinde bulunanın <b>yerini tespit edip ilgili kuruluşa bildirmekle</b> yükümlüdür."},
+
+ {cat:"5809 EHK", q:"Aşağıdakilerden hangisi hiçbir şekilde haczedilemez?",
+  opts:["İşletmecinin taşınmazları","İşletmecinin banka hesapları","Abone/kullanıcılara tahsis edilen frekans, numara, hat ve alan adı kullanım hakları ile yetkilendirmeler","İşletmecinin ticari araçları"], a:2,
+  e:"Abone veya kullanıcılara tahsis edilen <b>frekans, numara, hat kullanımı ile internet alan adları gibi haklar ve işletmecilerin yetkilendirmeleri</b> hiçbir şekilde haczedilemez (m.34)."},
+
+ {cat:"5809 EHK", q:"Şebekeler üstü (OTT) hizmet sağlayıcılar faaliyetlerini nasıl yürütür?",
+  opts:["Yurt dışı merkezlerinden serbestçe","Türkiye'de kurdukları AŞ veya Ltd. statüsündeki tam yetkili temsilcileri aracılığıyla yetkilendirilerek","Hiçbir yetkilendirmeye tabi olmadan","Yalnızca Bakanlık izniyle"], a:1,
+  e:"Şebekeler üstü hizmet sağlayıcılar, faaliyetlerini <b>Türkiye'de kurdukları anonim veya limited şirket statüsündeki tam yetkili temsilcileri</b> aracılığıyla, Kurumca yapılacak yetkilendirme çerçevesinde yürütürler (m.9/14)."},
+];
+
+let idx=0, correct=0, wrong=0, answered=false;
+const log=[];
+const card=document.getElementById('card');
+const bar=document.getElementById('bar');
+const barlabel=document.getElementById('barlabel');
+const nextBtn=document.getElementById('next');
+const rsC=document.getElementById('rs-c');
+const rsW=document.getElementById('rs-w');
+const keys=['A','B','C','D'];
+
+function render(){
+  answered=false;
+  const item=QUESTIONS[idx];
+  bar.style.width=((idx)/QUESTIONS.length*100)+'%';
+  barlabel.textContent='Soru '+(idx+1)+' / '+QUESTIONS.length;
+  nextBtn.disabled=true;
+  nextBtn.textContent=(idx===QUESTIONS.length-1)?'Sonucu gör →':'Sonraki soru →';
+
+  let html='<div class="q-head"><span class="q-num">'+(idx+1)+'</span>'+
+           '<span class="q-cat">'+item.cat+'</span></div>'+
+           '<div class="q-text">'+item.q+'</div>';
+  item.opts.forEach((o,i)=>{
+    html+='<button class="opt" data-i="'+i+'"><span class="key">'+keys[i]+'</span>'+
+          '<span class="txt">'+o+'</span><span class="mark"></span></button>';
+  });
+  html+='<div class="explain" id="explain"></div>';
+  card.innerHTML=html;
+  card.querySelectorAll('.opt').forEach(b=>{
+    b.addEventListener('click',()=>choose(parseInt(b.dataset.i)));
+  });
+}
+
+function choose(i){
+  if(answered) return;
+  answered=true;
+  const item=QUESTIONS[idx];
+  const opts=card.querySelectorAll('.opt');
+  const isRight=(i===item.a);
+  if(isRight){correct++;}else{wrong++;}
+  rsC.textContent=correct; rsW.textContent=wrong;
+  log.push({q:item.q,cat:item.cat,chosen:i,right:item.a,ok:isRight,opts:item.opts});
+  opts.forEach((b,bi)=>{
+    b.disabled=true;
+    if(bi===item.a){b.classList.add('correct'); b.querySelector('.mark').textContent='✓ Doğru';}
+    if(bi===i && !isRight){b.classList.add('wrong'); b.querySelector('.mark').textContent='✗ Senin yanıtın';}
+  });
+  const ex=document.getElementById('explain');
+  ex.innerHTML='<span class="verdict '+(isRight?'ok':'no')+'">'+(isRight?'Doğru yanıt.':'Yanlış yanıt.')+'</span>'+item.e;
+  ex.classList.add('show');
+  nextBtn.disabled=false;
+}
+
+nextBtn.addEventListener('click',()=>{
+  if(idx<QUESTIONS.length-1){idx++; render(); window.scrollTo({top:0,behavior:'smooth'});}
+  else{showResults();}
+});
+
+function showResults(){
+  document.getElementById('quiz').style.display='none';
+  const res=document.getElementById('results');
+  res.classList.add('show');
+  const total=QUESTIONS.length;
+  const pct=Math.round(correct/total*100);
+  document.getElementById('finalpct').textContent=pct+'%';
+  document.getElementById('finalratio').textContent=correct+' / '+total+' doğru';
+  const grade=document.getElementById('grade');
+  if(pct>=70){grade.className='grade pass'; grade.textContent='BAŞARILI';}
+  else{grade.className='grade fail'; grade.textContent='BARAJ ALTI';}
+  const rev=document.getElementById('review');
+  rev.innerHTML='';
+  log.forEach((l,n)=>{
+    const div=document.createElement('div');
+    div.className='rev-item';
+    div.innerHTML='<span class="rev-dot '+(l.ok?'ok':'no')+'">'+(l.ok?'✓':'✗')+'</span>'+
+      '<div><div class="rq">'+(n+1)+'. '+l.q+'</div>'+
+      '<div class="ra"><b>Doğru: '+keys[l.right]+') '+l.opts[l.right]+'</b>'+
+      (l.ok?'':' &nbsp;·&nbsp; Senin yanıtın: '+keys[l.chosen]+') '+l.opts[l.chosen])+'</div></div>';
+    rev.appendChild(div);
+  });
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+document.getElementById('restart').addEventListener('click',()=>{
+  idx=0;correct=0;wrong=0;log.length=0;
+  rsC.textContent='0';rsW.textContent='0';
+  document.getElementById('results').classList.remove('show');
+  document.getElementById('quiz').style.display='block';
+  render(); window.scrollTo({top:0,behavior:'smooth'});
+});
+
+render();
+</script>
+</body>
+</html>
